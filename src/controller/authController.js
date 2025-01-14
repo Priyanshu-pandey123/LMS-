@@ -1,5 +1,6 @@
-const userSchema = require("../model/userSchema");
+const userModel = require("../model/userSchema");
 const emailValidator = require("email-validator");
+const bcrypt = require("bcrypt");
 
 const sample = async (req, res) => {
   res.status(200).json({
@@ -30,7 +31,7 @@ const singUp = async (req, res) => {
     });
   }
   try {
-    const user = userSchema(req.body);
+    const user = userModel(req.body);
     await user.save();
     res.status(200).json({
       status: true,
@@ -61,8 +62,8 @@ const signin = async (req, res) => {
   }
 
   try {
-    const user = await userSchema.findOne({ email }).select("+password");
-    if (!user || password !== user.password) {
+    const user = await userModel.findOne({ email }).select("+password");
+    if (!user || !bcrypt.compare(password, user.password)) {
       return res.status(400).json({
         message: "invalid credentail",
       });
@@ -86,13 +87,45 @@ const signin = async (req, res) => {
   }
 };
 
-const profile = (req, res) => {
+const profile = async (req, res) => {
   const user = req.user;
-  res.send(user);
+  try {
+    const userDetail = await userModel.findById(user.id);
+    res.status(200).json({
+      success: true,
+      data: userDetail,
+    });
+  } catch (err) {
+    res.status(400).json({
+      success: false,
+      message: err.message,
+    });
+  }
 };
+
+const logout = (req, res) => {
+  const jwtOption = {
+    httpOnly: true,
+    maxAge: 0,
+  };
+  try {
+    res.cookie("token", "", jwtOption);
+    res.status(200).json({
+      success: true,
+      message: "logout successfully",
+    });
+  } catch (err) {
+    res.status(400).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
 module.exports = {
   sample,
   singUp,
   signin,
   profile,
+  logout,
 };

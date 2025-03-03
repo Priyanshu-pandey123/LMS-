@@ -4,21 +4,36 @@ const CookieParser = require("cookie-parser");
 const cors = require("cors");
 const morgan = require("morgan");
 const errorMiddleware = require("./middleware/error.middleware");
+const leadRoutes = require("./router/leadRoute");
+const authToken = require("./middleware/authToke");
 const app = express();
+
+const allowedOrigins = ["http://localhost:5173", "http://127.0.0.1:5173"];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      console.log("Incoming request origin:", origin);
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        console.error("Not allowed by CORS:", origin);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
 app.use(express.json());
 app.use(CookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", authRoute);
-app.use(
-  cors({
-    origin: "*",
-    credentials: true,
-  })
-);
+app.use("/api/lead", authToken, leadRoutes);
 app.use(morgan("dev"));
 app.get("/", (req, res) => {
   res.status(200).json({
-    data: "now the set up is ready for the login system",
+    data: "now the set up is ready for the  Prtree  Backecnd Services",
   });
 });
 app.all("*", (req, res) => {

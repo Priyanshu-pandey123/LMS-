@@ -3,7 +3,8 @@ const emailValidator = require("email-validator");
 const bcrypt = require("bcrypt");
 const AppError = require("../utils/AppError");
 const cloudinary = require("cloudinary").v2;
-
+const sendPasswordResetEmail = require("../utils/nodeMail");
+// const { verifyResetPasswordToken } = require("../model/userSchema");
 const cookieOption = {
   maxAge: 24 * 60 * 60 * 1000,
   httpOnly: true,
@@ -14,21 +15,15 @@ const sample = async (req, res, next) => {
 };
 
 const singUp = async (req, res, next) => {
-  const { email, name, password, confirmPassword } = req.body;
+  const { email, number, password } = req.body;
   console.log(req.body);
-  console.log("File:", req.file.path);
-  if (!email || !name || !password || !confirmPassword) {
+  if (!email || !number || !password) {
     return res.status(400).json({
       status: false,
-      message: "Enter all the feild",
+      message: "Enter all the feild000000000",
     });
   }
-  if (password !== confirmPassword) {
-    return res.status(400).json({
-      status: false,
-      message: "Password and Confirm Password not same:",
-    });
-  }
+
   if (!emailValidator.validate(email)) {
     return res.status(400).json({
       status: false,
@@ -42,39 +37,11 @@ const singUp = async (req, res, next) => {
     }
 
     const user = userModel({
-      name: name,
+      number: number,
       email: email,
       password: password,
-      avatar: {
-        public_id: "prince",
-        secure_url: "pandey",
-      },
     });
-
-    // todo image upload
-    if (req.file) {
-      try {
-        const result = await cloudinary.uploader.upload(req.file.path, {
-          folder: "lms",
-          width: 300,
-          height: 300,
-          gravity: "face",
-          crop: "fill",
-        });
-
-        if (result) {
-          user.avatar.public_id = result.public_id;
-          user.avatar.secure_url = result.secure_url;
-        }
-      } catch (err) {
-        next(new AppError(500, err.message));
-      }
-    }
     await user.save();
-
-    const token = user.jwtToken();
-    res.cookie("token", token, cookieOption);
-
     res.status(200).json({
       status: true,
       data: user,
@@ -84,25 +51,25 @@ const singUp = async (req, res, next) => {
       return res.status(400).json({
         data: "this email is already exist",
       });
-
-      return res.status(400).json({
-        status: false,
-        message: err.message,
-      });
     }
     console.log(`Some error in the signing process ${err}`);
+    return res.status(400).json({
+      status: false,
+      error: err,
+    });
   }
 };
-
 const signin = async (req, res, next) => {
+  console.log("iiiiiii");
   const { email, password } = req.body;
   if (!email || !password) {
     next(new AppError(400, "fill all  the entery "));
   }
-
+  console.log(req.body);
   try {
     const user = await userModel.findOne({ email }).select("+password");
-    if (!user || !bcrypt.compare(password, user.password)) {
+    const isPasswordCorrect = await bcrypt.compare(password, user.password);
+    if (!user || !isPasswordCorrect) {
       return res.status(400).json({
         message: "invalid credentail",
       });
@@ -112,7 +79,7 @@ const signin = async (req, res, next) => {
     user.password = undefined;
     res.cookie("token", token, cookieOption);
     res.status(200).json({
-      message: "login success",
+      message: "login success ",
       data: user,
     });
   } catch (err) {
@@ -168,15 +135,18 @@ const resetPasswordlink = async (req, res, next) => {
       return next(new AppError(400, "This email will not exist"));
     }
     const resetToken = await user.generateResetPasswordToken();
-    await user.save();
 
-    const tokenUrl = `${process.env.FRONTEND_URL}/rest-password/${resetToken}`;
+    const tokenUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
     console.log(tokenUrl);
-    // send mail
+
+    await user.save();
+    console.log(user, "form generate link");
+    sendPasswordResetEmail(email, tokenUrl);
     res.status(200).json({
       success: true,
       data: user,
       token: tokenUrl,
+      resetToken: resetToken,
     });
   } catch (err) {
     // user.forgetToken = undefined;
@@ -186,16 +156,24 @@ const resetPasswordlink = async (req, res, next) => {
 };
 const resetPassword = async (req, res, next) => {
   const { id } = req.params;
+  console.log(id);
   if (!id) {
     return next(new AppError(400, "Unauthorized"));
   }
-  const { email, newPassword } = req.body;
-  if (!email || !newPassword) {
+  const { email, newPassword, confirmPassword } = req.body;
+  if (!email || !newPassword || !confirmPassword) {
     return next(new AppError(400, "fill all the entry"));
   }
 
+  if (newPassword != confirmPassword) {
+    return next(new AppError(400, "Password will not match"));
+  }
+
   try {
-    const user = await userModel.findOne({ email: email });
+    const user = await userModel
+      .findOne({ email: email })
+      .select("+forgetToken +forgetTokenDate");
+    console.log(user);
 
     if (!user) {
       return next(new AppError(400, "user with this email not exist"));
@@ -209,7 +187,6 @@ const resetPassword = async (req, res, next) => {
       );
     }
     user.password = newPassword;
-
     user.forgetToken = undefined;
     user.forgetTokenDate = undefined;
     await user.save();

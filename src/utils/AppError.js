@@ -5,7 +5,4 @@ class AppError extends Error {
     Error.captureStackTrace(this, this.constructor);
   }
 }
-
-const t = new AppError(400, "hello js");
-
 module.exports = AppError;

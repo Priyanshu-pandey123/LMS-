@@ -13,4 +13,11 @@ CLOUDINARY_AP_SECRET = "v5KYjlrfuRUEle1jlZbGhhMlues";
 //   return res.status(400).json({
 //     status: false,
 //     message: "Password and Confirm Password not same:",
-//   });
+// //   });
+// DB_URL =
+//   "mongodb+srv://prince678p:xgc2z8A1pgUe0XLD@prtree.eqo6h.mongodb.net/?retryWrites=true&w=majority&appName=prTree";
+// JWT_SECRET = "Prince12@#";
+
+// FRONTEND_URL = "http://localhost:5173";
+// EMAIL_PASSWORD = "rcrzzenyqszfiake";
+// EMAIL = "prince678p@gmail.com";

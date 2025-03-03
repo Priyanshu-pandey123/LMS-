@@ -74,11 +74,7 @@ userSchema.methods = {
       .createHash("sha256")
       .update(providedToken)
       .digest("hex");
-    console.log("Provided Token:", providedToken);
-    console.log("Hashed Provided Token:", hashToken);
-    console.log("Stored Hash Token:", this.forgetToken);
-    console.log("Token Expiration Date:", new Date(this.forgetTokenDate));
-    console.log("Current Date:", new Date());
+
     // Compare the hashed provided token with the stored hash and check expiration
     return hashToken === this.forgetToken && Date.now() < this.forgetTokenDate;
   },

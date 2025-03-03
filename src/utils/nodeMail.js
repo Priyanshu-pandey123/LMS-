@@ -2,7 +2,7 @@ const nodemailer = require("nodemailer");
 require("dotenv").config(); // Load environment variables
 
 // Create a transporter object for email sending
-console.log(process.env.EMAIL_PASSWORD);
+
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -18,7 +18,6 @@ const transporter = nodemailer.createTransport({
  */
 const sendPasswordResetEmail = async (to, resetToken) => {
   try {
-    console.log(to, resetToken);
     const mailOptions = {
       from: process.env.EMAIL,
       to,
@@ -31,7 +30,6 @@ const sendPasswordResetEmail = async (to, resetToken) => {
     };
 
     await transporter.sendMail(mailOptions);
-    console.log("Password reset email sent");
   } catch (error) {
     console.error("Error sending password reset email:", error);
     throw error;

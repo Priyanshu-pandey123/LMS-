@@ -16,7 +16,6 @@ const sample = async (req, res, next) => {
 
 const singUp = async (req, res, next) => {
   const { email, number, password } = req.body;
-  console.log(req.body);
   if (!email || !number || !password) {
     return res.status(400).json({
       status: false,
@@ -47,6 +46,7 @@ const singUp = async (req, res, next) => {
       data: user,
     });
   } catch (err) {
+    console.log(err);
     if (err.code === 11000) {
       return res.status(400).json({
         data: "this email is already exist",
@@ -60,12 +60,11 @@ const singUp = async (req, res, next) => {
   }
 };
 const signin = async (req, res, next) => {
-  console.log("iiiiiii");
   const { email, password } = req.body;
   if (!email || !password) {
     next(new AppError(400, "fill all  the entery "));
   }
-  console.log(req.body);
+
   try {
     const user = await userModel.findOne({ email }).select("+password");
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
@@ -137,10 +136,8 @@ const resetPasswordlink = async (req, res, next) => {
     const resetToken = await user.generateResetPasswordToken();
 
     const tokenUrl = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
-    console.log(tokenUrl);
 
     await user.save();
-    console.log(user, "form generate link");
     sendPasswordResetEmail(email, tokenUrl);
     res.status(200).json({
       success: true,
@@ -156,7 +153,7 @@ const resetPasswordlink = async (req, res, next) => {
 };
 const resetPassword = async (req, res, next) => {
   const { id } = req.params;
-  console.log(id);
+
   if (!id) {
     return next(new AppError(400, "Unauthorized"));
   }
@@ -173,13 +170,11 @@ const resetPassword = async (req, res, next) => {
     const user = await userModel
       .findOne({ email: email })
       .select("+forgetToken +forgetTokenDate");
-    console.log(user);
 
     if (!user) {
       return next(new AppError(400, "user with this email not exist"));
     }
     const isTokenValid = user.verifyResetPasswordToken(id);
-    console.log(isTokenValid, "token valid");
 
     if (!isTokenValid) {
       return next(

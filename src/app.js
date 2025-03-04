@@ -8,7 +8,11 @@ const leadRoutes = require("./router/leadRoute");
 const authToken = require("./middleware/authToke");
 const app = express();
 
-const allowedOrigins = ["http://localhost:5173", "http://127.0.0.1:5173"];
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  "http://43.204.229.77",
+];
 
 app.use(
   cors({

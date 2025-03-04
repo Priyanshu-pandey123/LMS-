@@ -21,6 +21,7 @@ exports.createOrUpdateLead = async (req, res) => {
 
       return res.status(200).json({
         success: true,
+        done: 0,
         message: "Lead updated successfully",
         lead: updatedLead,
       });
@@ -33,6 +34,7 @@ exports.createOrUpdateLead = async (req, res) => {
       success: true,
       message: "Lead created successfully",
       lead: newLead,
+      done: 1,
     });
   } catch (error) {
     console.error("Error creating/updating lead:", error);

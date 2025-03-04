@@ -11,7 +11,9 @@ const cookieOption = {
   secure: true,
 };
 const sample = async (req, res, next) => {
-  return next(new AppError(400, "error done"));
+  return res.json({
+    data: "priyanshu pandey",
+  });
 };
 
 const singUp = async (req, res, next) => {
@@ -19,7 +21,7 @@ const singUp = async (req, res, next) => {
   if (!email || !number || !password) {
     return res.status(400).json({
       status: false,
-      message: "Enter all the feild000000000",
+      message: "Enter all the feild",
     });
   }
 
@@ -67,6 +69,11 @@ const signin = async (req, res, next) => {
 
   try {
     const user = await userModel.findOne({ email }).select("+password");
+    if (!user) {
+      return res.status(404).json({
+        message: "Account Not Exit ? Sign Up please",
+      });
+    }
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!user || !isPasswordCorrect) {
       return res.status(400).json({
@@ -84,6 +91,7 @@ const signin = async (req, res, next) => {
   } catch (err) {
     res.status(400).json({
       message: err.message,
+      errorMessage: "",
     });
   }
 };

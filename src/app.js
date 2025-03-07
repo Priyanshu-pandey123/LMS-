@@ -18,17 +18,21 @@ app.use(
   cors({
     origin: function (origin, callback) {
       console.log("Incoming request origin:", origin);
-      if (!origin) return callback(null, true);
-      if (allowedOrigins.indexOf(origin) !== -1) {
-        callback(null, true);
-      } else {
-        console.error("Not allowed by CORS:", origin);
-        callback(new Error("Not allowed by CORS"));
+      if (!origin) {
+        console.log("No origin, allowing request.");
+        return callback(null, true);
       }
+      if (allowedOrigins.includes(origin)) {
+        console.log("Allowed origin:", origin);
+        return callback(null, true);
+      }
+      console.error("Blocked by CORS:", origin);
+      callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
   })
 );
+
 app.use(express.json());
 app.use(CookieParser());
 app.use(express.urlencoded({ extended: true }));

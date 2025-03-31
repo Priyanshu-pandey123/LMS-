@@ -8,7 +8,7 @@ const authToken = require("../middleware/authToke");
 //   return res.send("welcome to lead gen");
 // });
 
-leadRoutes.post("/create", authToken, createOrUpdateLead);
+leadRoutes.post("/create", createOrUpdateLead);
 // leadRoutes.get("/get", authToken, getLead);
 
 module.exports = leadRoutes;

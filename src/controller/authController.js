@@ -3,7 +3,7 @@ const emailValidator = require("email-validator");
 const bcrypt = require("bcrypt");
 const AppError = require("../utils/AppError");
 const cloudinary = require("cloudinary").v2;
-const sendPasswordResetEmail = require("../utils/nodeMail");
+const { sendPasswordResetEmail } = require("../utils/nodeMail");
 // const { verifyResetPasswordToken } = require("../model/userSchema");
 const cookieOption = {
   maxAge: 24 * 60 * 60 * 1000,

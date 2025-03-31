@@ -37,7 +37,7 @@ app.use(express.json());
 app.use(CookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use("/api/auth", authRoute);
-app.use("/api/lead", authToken, leadRoutes);
+app.use("/api/lead", leadRoutes);
 app.use(morgan("dev"));
 app.get("/", (req, res) => {
   res.status(200).json({

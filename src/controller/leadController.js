@@ -1,35 +1,32 @@
 const Lead = require("../model/leadSchema");
+const { sendLeadNotificationEmail } = require("../utils/nodeMail");
 
 exports.createOrUpdateLead = async (req, res) => {
   try {
-    if (!req.user || !req.user.id) {
-      return res.status(401).json({ success: false, message: "Unauthorized" });
-    }
-
-    const leadData = { ...req.body, createdBy: req.user.id };
+    const leadData = { ...req.body };
 
     // Check if a lead already exists for the user
-    const existingLead = await Lead.findOne({ createdBy: req.user.id });
+    // const existingLead = await Lead.findOne({ createdBy: req.user.id });
 
-    if (existingLead) {
-      // Update the existing lead
-      const updatedLead = await Lead.findOneAndUpdate(
-        { createdBy: req.user.id },
-        leadData,
-        { new: true, runValidators: true }
-      );
+    // if (existingLead) {
+    //   // Update the existing lead
+    //   const updatedLead = await Lead.findOneAndUpdate(
+    //     { createdBy: req.user.id },
+    //     leadData,
+    //     { new: true, runValidators: true }
+    //   );
 
-      return res.status(200).json({
-        success: true,
-        done: 0,
-        message: "Lead updated successfully",
-        lead: updatedLead,
-      });
-    }
+    //   return res.status(200).json({
+    //     success: true,
+    //     done: 0,
+    //     message: "Lead updated successfully",
+    //     lead: updatedLead,
+    //   });
+    // }
 
     // Create a new lead if not found
     const newLead = await Lead.create(leadData);
-
+    sendLeadNotificationEmail(newLead);
     res.status(201).json({
       success: true,
       message: "Lead created successfully",

@@ -14,7 +14,6 @@ const leadSchema = new mongoose.Schema(
     phone: {
       type: String,
       required: true,
-      match: /^[6-9][0-9]{9}$/, // Phone validation (Indian numbers)
     },
     companyName: {
       type: String,
@@ -34,11 +33,11 @@ const leadSchema = new mongoose.Schema(
       pressRelease: { type: Boolean, default: false },
     },
 
-    createdBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "users", // Reference to user model
-      required: true,
-    },
+    // createdBy: {
+    //   type: mongoose.Schema.Types.ObjectId,
+    //   ref: "users", // Reference to user model
+    //   required: true,
+    // },
   },
   { timestamps: true }
 );

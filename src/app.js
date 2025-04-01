@@ -12,6 +12,7 @@ const allowedOrigins = [
   "http://localhost:5173",
   "http://127.0.0.1:5173",
   "http://43.204.229.77",
+  "https://theprtree.com",
 ];
 
 app.use(
